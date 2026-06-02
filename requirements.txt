@@ -2,3 +2,5 @@ streamlit
 pandas
 plotly
 scikit_learn
+xgboost
+gdown

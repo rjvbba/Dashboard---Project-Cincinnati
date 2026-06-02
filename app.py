@@ -1,140 +1,162 @@
+#Bibliotecas
+
 import streamlit as st
+import joblib
 import pandas as pd
+import gdown
+import os
 
-# --------------------------------------------------
-# Configuração da página
-# --------------------------------------------------
+# =====================================================
+# CONFIGURAÇÃO STREAMLIT
+# =====================================================
+
 st.set_page_config(
-    page_title="Superstore Dashboard", # O título que mostra na tab do browser
-    layout="wide" # A opção "centered" coloca a página numa coluna central
+    page_title="Cincinnati Fleet Dashboard",
+    page_icon="🚚",
+    layout="wide"
 )
 
-st.title("📊 Superstore Dashboard")
-st.markdown("Dashboard de vendas")
+#Importação de datasets e pkl
 
-# --------------------------------------------------
-# Carregamento dos dados
-# --------------------------------------------------
-# Esta linha é extremamente importante. 
-# Ao ler o ficheiro a primeira vez, a app guarda os dados em memória (cache)
-# Assim, sempre que houver interações com o dashboard (ex: mudar um filtro), não é necessário ler o ficheiro csv novamente
-@st.cache_data 
+# =====================================================
+# GOOGLE DRIVE FILE IDS
+# =====================================================
+
+MASTER_FILE_ID = "1_6rqblhCDduCD7zeRPV4_wS7ggl6MaUa"
+
+DF_PROCESSED_FILE_ID = "1EgYt6ZGIDtPwAi1w5-9UsKQh2vMFIpeA"
+
+# =====================================================
+# DOWNLOAD DATASETS (APENAS UMA VEZ)
+# =====================================================
+
+if not os.path.exists("master_df.pkl"):
+
+    gdown.download(
+        f"https://drive.google.com/uc?id={MASTER_FILE_ID}",
+        "master_df.pkl",
+        quiet=False
+    )
+
+if not os.path.exists("df_processed.pkl"):
+
+    gdown.download(
+        f"https://drive.google.com/uc?id={DF_PROCESSED_FILE_ID}",
+        "df_processed.pkl",
+        quiet=False
+    )
+
+# =====================================================
+# DATASETS
+# =====================================================
+
+master_df = pd.read_pickle(
+    "master_df.pkl"
+)
+
+df_processed = pd.read_pickle(
+    "df_processed.pkl"
+)
+
+# =====================================================
+# MODELOS
+# =====================================================
+
+downtime_model = joblib.load(
+    "downtime_model.pkl"
+)
+
+cost_model = joblib.load(
+    "cost_model.pkl"
+)
+
+# =====================================================
+# FEATURES
+# =====================================================
+
+downtime_features = joblib.load(
+    "downtime_features.pkl"
+)
+
+cost_features = joblib.load(
+    "cost_features.pkl"
+)
+
+# =====================================================
+# TESTE
+# =====================================================
+
+st.success("Todos os ficheiros carregados com sucesso")
+
+st.write("Master DF:", master_df.shape)
+
+st.write("Processed DF:", df_processed.shape)
+
+st.write("Downtime Features:", len(downtime_features))
+
+st.write("Cost Features:", len(cost_features))
+
+# =====================================================
+# CACHE DATASETS
+# =====================================================
+@st.cache_data
 def load_data():
-    file_name = "Superstore.csv"
-    df = pd.read_csv(file_name, parse_dates=["Order Date"])
-    return df
 
-df = load_data()
+    master_df = pd.read_pickle(
+        "master_df.pkl"
+    )
 
-# --------------------------------------------------
-# Definir um Sidebar com filtros
-# --------------------------------------------------
-st.sidebar.header("Filtros")
+    df_processed = pd.read_pickle(
+        "df_processed.pkl"
+    )
 
-# Filtro de Região
-sorted_regions = sorted(df["Region"].unique())
-regions = st.sidebar.multiselect(
-    "Região",
-    options=sorted_regions,
-    default=sorted_regions
-)
+    return master_df, df_processed
 
-# Filtro de Categoria
-sorted_categories = sorted(df["Category"].unique())
-categories = st.sidebar.multiselect(
-    "Categoria",
-    options=sorted_categories,
-    default=sorted_categories
-)
+# =====================================================
+# CACHE MODELOS
+# =====================================================
+@st.cache_resource
+def load_models():
 
-# Filtro de Ano
-years = sorted(df["Order Date"].dt.year.unique())
-year_range = st.sidebar.slider(
-    "Ano",
-    min_value=int(min(years)),
-    max_value=int(max(years)),
-    value=(int(min(years)), int(max(years)))
-)
+    downtime_model = joblib.load(
+        "downtime_model.pkl"
+    )
 
-# Aplicar filtros
-filtered_df = df[
-    (df["Region"].isin(regions)) &
-    (df["Category"].isin(categories)) &
-    (df["Order Date"].dt.year.between(year_range[0], year_range[1]))
-]
+    cost_model = joblib.load(
+        "cost_model.pkl"
+    )
 
-# --------------------------------------------------
-# Parte superior com KPIs
-# --------------------------------------------------
-total_sales = filtered_df["Sales"].sum()
-total_profit = filtered_df["Profit"].sum()
-num_orders = filtered_df["Order ID"].nunique()
+    downtime_features = joblib.load(
+        "downtime_features.pkl"
+    )
 
-# Vamos dividir a área em 3 colunas para mostrar os KPIs lado a lado
-col1, col2, col3 = st.columns(3)
-col1.metric("💰 Vendas Totais", f"${total_sales:,.0f}")
-col2.metric("📈 Lucro Total", f"${total_profit:,.0f}")
-col3.metric("🧾 Nº de Encomendas", num_orders)
+    cost_features = joblib.load(
+        "cost_features.pkl"
+    )
 
-st.divider()
+    return (
+        downtime_model,
+        cost_model,
+        downtime_features,
+        cost_features
+    )
 
-# ------------------------------------------------------------------
-# Gráfico 1 - Vendas ao longo do tempo (cada categoria é uma série)
-# ------------------------------------------------------------------
-st.subheader("📅 Vendas ao longo do tempo por categoria")
+# =====================================================
+# lOADING
+# =====================================================
 
-# Agrupar a soma de Sales em cada mês por Category
-sales_over_time = (
-    filtered_df
-    .groupby(
-        [pd.Grouper(key="Order Date", freq="ME"), "Category"]
-    )["Sales"]
-    .sum()
-    .reset_index()
-)
+master_df, df_processed = load_data()
 
-# Criar uma pivot table
-sales_pivot = sales_over_time.pivot(
-    index="Order Date",
-    columns="Category",
-    values="Sales"
-)
+(
+    downtime_model,
+    cost_model,
+    downtime_features,
+    cost_features
+) = load_models()
 
-st.line_chart(sales_pivot)
 
-# --------------------------------------------------
-# Gráfico 2 - Vendas por Região
-# --------------------------------------------------
-st.subheader("🌍 Vendas por Região")
 
-# Agrupar a soma de Sales por Region
-sales_by_region = (
-    filtered_df
-    .groupby("Region")["Sales"]
-    .sum()
-)
 
-st.bar_chart(sales_by_region)
 
-st.divider()
-
-# --------------------------------------------------
-# Table - Top produtos
-# --------------------------------------------------
-st.subheader("🏆 Top 10 produtos por vendas")
-
-# Agrupar a soma de Sales por Product Name, ordenar e mostrar os top 10
-top_products = (
-    filtered_df
-    .groupby("Product Name")["Sales"]
-    .sum()
-    .sort_values(ascending=False)
-    .head(10)
-)
-
-st.dataframe(top_products)
-
-# --------------------------------------------------
-# Rodapé
-# --------------------------------------------------
-st.caption("Dados: Sample Superstore")
+#Dashboard
+st.title("Cincinnati Fleet Dashboard")
