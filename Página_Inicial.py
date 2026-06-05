@@ -82,19 +82,6 @@ cost_features = joblib.load(
     "cost_features.pkl"
 )
 
-# =====================================================
-# TESTE
-# =====================================================
-
-st.success("Todos os ficheiros carregados com sucesso")
-
-st.write("Master DF:", master_df.shape)
-
-st.write("Processed DF:", df_processed.shape)
-
-st.write("Downtime Features:", len(downtime_features))
-
-st.write("Cost Features:", len(cost_features))
 
 # =====================================================
 # CACHE DATASETS
@@ -157,12 +144,48 @@ master_df, df_processed = load_data()
 #Páginas
 
 
-st.title(
-    "🚚 Cincinnati Fleet Dashboard"
-)
+st.title("🚛 Dashboard de Manutenção Preditiva da Frota de Cincinnati")
 
 st.markdown("""
-Welcome to the Cincinnati Fleet Predictive Maintenance Platform.
+Bem-vindo à plataforma de análise e manutenção preditiva da frota municipal de Cincinnati.
 
-Use the menu on the left to navigate through the dashboard.
-""")
+Este dashboard utiliza modelos de Machine Learning para apoiar a tomada de decisão na gestão de equipamentos, permitindo identificar riscos de avaria, estimar custos de reparação e prever tempos de indisponibilidade.
+
+---
+
+## 📊 Fleet Overview
+
+Visão global da frota.
+
+Nesta página poderá consultar:
+
+- Indicadores-chave da frota
+- Equipamentos com maior risco de intervenção
+- Estatísticas de custo e downtime
+- Resumo operacional da frota
+
+---
+
+## 🔧 Manutenção Preditiva
+
+Análise individual de equipamentos.
+
+Nesta página poderá:
+
+- Pesquisar equipamentos específicos
+- Consultar histórico resumido
+- Visualizar probabilidade de reparação nos próximos 30 dias
+- Analisar métricas operacionais relevantes
+
+---
+
+## 📈 Simulador de Impacto
+
+Ferramenta de apoio à decisão.
+
+Nesta página poderá:
+
+- Simular novas intervenções
+- Introduzir parâmetros operacionais
+- Estimar downtime esperado
+- Estimar custo previsto de reparação""")
