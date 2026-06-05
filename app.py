@@ -154,9 +154,15 @@ master_df, df_processed = load_data()
     cost_features
 ) = load_models()
 
+#Páginas
 
 
+st.title(
+    "🚚 Cincinnati Fleet Dashboard"
+)
 
+st.markdown("""
+Welcome to the Cincinnati Fleet Predictive Maintenance Platform.
 
-#Dashboard
-st.title("Cincinnati Fleet Dashboard")
+Use the menu on the left to navigate through the dashboard.
+""")
