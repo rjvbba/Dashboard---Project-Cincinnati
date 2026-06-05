@@ -166,7 +166,7 @@ with col2:
     )
 
 # =====================================================
-# EXECUTAR
+# EXECUTAR SIMULAÇÃO
 # =====================================================
 
 if st.button("▶️ Executar Simulação"):
@@ -183,44 +183,107 @@ if st.button("▶️ Executar Simulação"):
 
     simulation_row["PRI_PRIORITY_CODE"] = priority
 
-    # =================================================
-    # DOWNTIME
-    # =================================================
+    # ==========================================
+    # INPUTS DOS MODELOS
+    # ==========================================
 
     downtime_input = pd.DataFrame(
         [simulation_row[downtime_features]]
     )
 
-    predicted_downtime = (
-        downtime_model
-        .predict(downtime_input)[0]
-    )
-
-    # =================================================
-    # COST
-    # =================================================
-
     cost_input = pd.DataFrame(
         [simulation_row[cost_features]]
     )
 
-    predicted_cost = (
-        cost_model
-        .predict(cost_input)[0]
+    # ==========================================
+    # PREVISÕES
+    # ==========================================
+
+    predicted_downtime = (
+        downtime_model.predict(
+            downtime_input
+        )[0]
     )
 
-    
-    # =================================================
-    # RESULTADOS
-    # =================================================
+    predicted_cost = (
+        cost_model.predict(
+            cost_input
+        )[0]
+    )
+
+    # ==========================================
+    # MAPEAR CLASSE DE DOWNTIME
+    # ==========================================
+
+    downtime_str = str(predicted_downtime).upper()
+
+    if downtime_str in ["0", "NORMAL"]:
+
+        downtime_class = "NORMAL"
+        downtime_icon = "✅"
+
+        downtime_description = (
+            "Downtime esperado inferior a 168 horas."
+        )
+
+    elif downtime_str in ["1", "MODERATE"]:
+
+        downtime_class = "MODERADO"
+        downtime_icon = "⚠️"
+
+        downtime_description = (
+            "Downtime esperado entre 168 e 720 horas."
+        )
+
+    else:
+
+        downtime_class = "CRÍTICO"
+        downtime_icon = "🚨"
+
+        downtime_description = (
+            "Downtime esperado superior a 720 horas."
+        )
+
+    # ==========================================
+    # PROBABILIDADES
+    # ==========================================
 
     st.header("🔮 Resultados da Simulação")
+
+    try:
+
+        probabilities = (
+            downtime_model
+            .predict_proba(downtime_input)[0]
+        )
+
+        prob_df = pd.DataFrame({
+
+            "Classe": [
+                "NORMAL",
+                "MODERADO",
+                "CRÍTICO"
+            ],
+
+            "Probabilidade": [
+                round(prob * 100, 2)
+                for prob in probabilities
+            ]
+        })
+
+    except:
+
+        prob_df = None
+
+    # ==========================================
+    # RESULTADOS PRINCIPAIS
+    # ==========================================
 
     col1, col2 = st.columns(2)
 
     col1.metric(
-        "Downtime Previsto",
-        f"{predicted_downtime:,.2f} h"
+        "Classe de Downtime Prevista",
+        f"{downtime_icon} {downtime_class}"
     )
 
     col2.metric(
@@ -228,34 +291,164 @@ if st.button("▶️ Executar Simulação"):
         f"${predicted_cost:,.2f}"
     )
 
-  
+    st.info(
+        downtime_description
+    )
 
-    # =================================================
-    # EXPORTAÇÃO
-    # =================================================
+    # ==========================================
+    # PROBABILIDADES POR CLASSE
+    # ==========================================
 
-    simulation_export = pd.DataFrame({
+    if prob_df is not None:
 
-        "Equipamento": [equipment],
+        st.subheader(
+            "🎯 Probabilidade por Classe"
+        )
 
-        "Tipo_Trabalho": [job_type],
+        st.dataframe(
+            prob_df,
+            use_container_width=True,
+            hide_index=True
+        )
 
-        "Ano": [work_year],
+    # ==========================================
+    # COMPARAÇÃO
+    # ==========================================
 
-        "Mes": [create_month],
+    st.subheader(
+        "📊 Comparação com Situação Atual"
+    )
 
-        "Prioridade": [priority],
+    comparison = pd.DataFrame({
 
-        "Downtime_Previsto": [predicted_downtime],
+        "Indicador": [
 
-        "Custo_Previsto": [predicted_cost]
+            "Intervenções",
+
+            "Custo Médio Atual",
+
+            "Custo Previsto",
+
+            "Classe Prevista"
+        ],
+
+        "Valor": [
+
+            int(
+                selected_master[
+                    "TOTAL_INTERVENTIONS"
+                ]
+            ),
+
+            f"${selected_master['AVG_COST_EQUIP']:,.2f}",
+
+            f"${predicted_cost:,.2f}",
+
+            downtime_class
+        ]
+    })
+
+    st.dataframe(
+        comparison,
+        use_container_width=True,
+        hide_index=True
+    )
+
+    # ==========================================
+    # INTERPRETAÇÃO AUTOMÁTICA
+    # ==========================================
+
+    st.subheader(
+        "🧠 Interpretação Automática"
+    )
+
+    current_cost = (
+        selected_master[
+            "AVG_COST_EQUIP"
+        ]
+    )
+
+    delta_cost = (
+        predicted_cost
+        - current_cost
+    )
+
+    if delta_cost > 0:
+
+        st.warning(
+            f"Prevê-se um aumento de ${delta_cost:,.2f} relativamente ao histórico."
+        )
+
+    else:
+
+        st.success(
+            f"Prevê-se uma redução de ${abs(delta_cost):,.2f} relativamente ao histórico."
+        )
+
+    if downtime_class == "CRÍTICO":
+
+        st.error(
+            "Risco elevado de indisponibilidade prolongada."
+        )
+
+    elif downtime_class == "MODERADO":
+
+        st.warning(
+            "Risco moderado de downtime."
+        )
+
+    else:
+
+        st.success(
+            "Baixo risco operacional."
+        )
+
+    # ==========================================
+    # EXPORTAR
+    # ==========================================
+
+    export_df = pd.DataFrame({
+
+        "Equipamento": [
+            equipment
+        ],
+
+        "Departamento": [
+            selected_master[
+                "DEPT_EQUIP_DEPT_NAME"
+            ]
+        ],
+
+        "Tipo_Trabalho": [
+            job_type
+        ],
+
+        "Ano": [
+            work_year
+        ],
+
+        "Mes": [
+            create_month
+        ],
+
+        "Prioridade": [
+            priority
+        ],
+
+        "Classe_Downtime": [
+            downtime_class
+        ],
+
+        "Custo_Previsto": [
+            round(predicted_cost, 2)
+        ]
     })
 
     st.download_button(
         "📥 Exportar Simulação",
-        simulation_export.to_csv(index=False),
+        export_df.to_csv(
+            index=False
+        ),
         file_name=f"simulacao_{equipment}.csv",
         mime="text/csv"
     )
-
-
