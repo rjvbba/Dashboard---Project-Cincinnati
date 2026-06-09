@@ -313,17 +313,19 @@ if run_simulation:
 
         "Valor": [
 
-            int(
-                selected_master[
-                    "TOTAL_INTERVENTIONS"
-                ]
+            str(
+                int(
+                    selected_master[
+                        "TOTAL_INTERVENTIONS"
+                    ]
+                )
             ),
 
             f"${selected_master['AVG_COST_EQUIP']:,.0f}",
 
             f"${predicted_cost:,.0f}",
 
-            downtime_class
+            str(downtime_class)
         ]
     })
 
