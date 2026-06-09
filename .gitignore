@@ -1,2 +1,4 @@
 master_df.pkl
 df_processed.pkl
+master_df.parquet
+df_processed.parquet
