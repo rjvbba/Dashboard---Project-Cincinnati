@@ -21,6 +21,16 @@ master_df, df_processed = load_data()
 ) = load_models()
 
 # =====================================================
+# CENÁRIOS GUARDADOS
+# =====================================================
+
+if "simulations" not in st.session_state:
+    st.session_state.simulations = []
+
+if "last_simulation" not in st.session_state:
+    st.session_state.last_simulation = None
+
+# =====================================================
 # PREPARAÇÃO
 # =====================================================
 
@@ -104,7 +114,7 @@ selected_processed = (
 
 st.header("📋 Situação Atual")
 
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4, col5 = st.columns(5)
 
 col1.metric(
     "Intervenções",
@@ -113,12 +123,22 @@ col1.metric(
 
 col2.metric(
     "Custo Médio",
-    f"${selected_master['AVG_COST_EQUIP']:,.2f}"
+    f"${selected_master['AVG_COST_EQUIP']:,.0f}"
 )
 
 col3.metric(
-    "Downtime Médio",
-    f"{selected_master['AVG_DOWNTIME_EQUIP']:,.2f} h"
+    "Downtime Médio (horas)",
+    f"{selected_master['AVG_DOWNTIME_EQUIP']:,.0f} h"
+)
+
+col4.metric(
+    "Downtime Médio (dias)",
+    f"{selected_master['AVG_DOWNTIME_EQUIP'] / 24:,.0f} dias"
+)
+
+col5.metric(
+    "Risco Atual Reparação 30 Dias",
+    f"{selected_master['PRED_REPAIR_30D_PCT']:.0f}%"
 )
 
 # =====================================================
@@ -159,17 +179,23 @@ with col2:
     priority = st.slider(
         "Prioridade",
         1,
-        5,
-        int(
-            selected_processed["PRI_PRIORITY_CODE"]
-        )
+        4,
+        int(selected_processed["PRI_PRIORITY_CODE"])
+    )
+
+    st.caption(
+        "1 = Urgente | 2 = Prioritário | 3 = Baixa Prioridade | 4 = Não Prioritário"
     )
 
 # =====================================================
 # EXECUTAR SIMULAÇÃO
 # =====================================================
 
-if st.button("▶️ Executar Simulação"):
+run_simulation = st.button(
+    "▶️ Executar Simulação"
+)
+
+if run_simulation:
 
     simulation_row = selected_processed.copy()
 
@@ -223,7 +249,7 @@ if st.button("▶️ Executar Simulação"):
         downtime_icon = "✅"
 
         downtime_description = (
-            "Downtime esperado inferior a 168 horas."
+            "Downtime esperado inferior a 168 horas (até 7 dias)."
         )
 
     elif downtime_str in ["1", "MODERATE"]:
@@ -232,7 +258,7 @@ if st.button("▶️ Executar Simulação"):
         downtime_icon = "⚠️"
 
         downtime_description = (
-            "Downtime esperado entre 168 e 720 horas."
+            "Downtime esperado entre 168 e 720 horas (7 a 30 dias)."
         )
 
     else:
@@ -241,43 +267,14 @@ if st.button("▶️ Executar Simulação"):
         downtime_icon = "🚨"
 
         downtime_description = (
-            "Downtime esperado superior a 720 horas."
+            "Downtime esperado superior a 720 horas (mais de 30 dias)."
         )
 
     # ==========================================
-    # PROBABILIDADES
+    # RESULTADOS
     # ==========================================
 
     st.header("🔮 Resultados da Simulação")
-
-    try:
-
-        probabilities = (
-            downtime_model
-            .predict_proba(downtime_input)[0]
-        )
-
-        prob_df = pd.DataFrame({
-
-            "Classe": [
-                "NORMAL",
-                "MODERADO",
-                "CRÍTICO"
-            ],
-
-            "Probabilidade": [
-                round(prob * 100, 2)
-                for prob in probabilities
-            ]
-        })
-
-    except:
-
-        prob_df = None
-
-    # ==========================================
-    # RESULTADOS PRINCIPAIS
-    # ==========================================
 
     col1, col2 = st.columns(2)
 
@@ -296,22 +293,6 @@ if st.button("▶️ Executar Simulação"):
     )
 
     # ==========================================
-    # PROBABILIDADES POR CLASSE
-    # ==========================================
-
-    if prob_df is not None:
-
-        st.subheader(
-            "🎯 Probabilidade por Classe"
-        )
-
-        st.dataframe(
-            prob_df,
-            use_container_width=True,
-            hide_index=True
-        )
-
-    # ==========================================
     # COMPARAÇÃO
     # ==========================================
 
@@ -324,12 +305,10 @@ if st.button("▶️ Executar Simulação"):
         "Indicador": [
 
             "Intervenções",
-
             "Custo Médio Atual",
-
             "Custo Previsto",
-
             "Classe Prevista"
+
         ],
 
         "Valor": [
@@ -340,9 +319,9 @@ if st.button("▶️ Executar Simulação"):
                 ]
             ),
 
-            f"${selected_master['AVG_COST_EQUIP']:,.2f}",
+            f"${selected_master['AVG_COST_EQUIP']:,.0f}",
 
-            f"${predicted_cost:,.2f}",
+            f"${predicted_cost:,.0f}",
 
             downtime_class
         ]
@@ -355,100 +334,142 @@ if st.button("▶️ Executar Simulação"):
     )
 
     # ==========================================
-    # INTERPRETAÇÃO AUTOMÁTICA
+    # GUARDAR SIMULAÇÃO
     # ==========================================
+
+    st.session_state.last_simulation = {
+
+        "Equipamento": equipment,
+
+        "Departamento":
+        selected_master[
+            "DEPT_EQUIP_DEPT_NAME"
+        ],
+
+        "Tipo Trabalho":
+        job_type,
+
+        "Ano":
+        work_year,
+
+        "Mês":
+        create_month,
+
+        "Prioridade":
+        priority,
+
+        "Intervenções":
+        int(
+            selected_master[
+                "TOTAL_INTERVENTIONS"
+            ]
+        ),
+
+        "Risco 30 Dias":
+        round(
+            selected_master[
+                "PRED_REPAIR_30D_PCT"
+            ],
+            2
+        ),
+
+        "Classe Downtime":
+        downtime_class,
+
+        "Custo Previsto":
+        round(
+            predicted_cost,
+            2
+        )
+    }
+
+# =====================================================
+# ÚLTIMA SIMULAÇÃO
+# =====================================================
+
+if st.session_state.last_simulation is not None:
+
+    st.markdown("---")
 
     st.subheader(
-        "🧠 Interpretação Automática"
+        "📌 Última Simulação"
     )
 
-    current_cost = (
-        selected_master[
-            "AVG_COST_EQUIP"
-        ]
+    last_df = pd.DataFrame(
+        [st.session_state.last_simulation]
     )
 
-    delta_cost = (
-        predicted_cost
-        - current_cost
+    st.dataframe(
+        last_df,
+        use_container_width=True,
+        hide_index=True
     )
 
-    if delta_cost > 0:
+    col1, col2 = st.columns(2)
 
-        st.warning(
-            f"Prevê-se um aumento de ${delta_cost:,.2f} relativamente ao histórico."
+    with col1:
+
+        if st.button(
+            "➕ Adicionar Cenário",
+            key="save_last_simulation"
+        ):
+
+            st.session_state.simulations.append(
+                st.session_state.last_simulation.copy()
+            )
+
+            st.success(
+                "Cenário adicionado com sucesso."
+            )
+
+    with col2:
+
+        st.download_button(
+            "📥 Exportar Última Simulação",
+            last_df.to_csv(index=False),
+            file_name="ultima_simulacao.csv",
+            mime="text/csv"
         )
 
-    else:
+# ==========================================
+# CENÁRIOS GUARDADOS
+# ==========================================
 
-        st.success(
-            f"Prevê-se uma redução de ${abs(delta_cost):,.2f} relativamente ao histórico."
-        )
+if len(st.session_state.simulations) > 0:
 
-    if downtime_class == "CRÍTICO":
+    st.markdown("---")
 
-        st.error(
-            "Risco elevado de indisponibilidade prolongada."
-        )
-
-    elif downtime_class == "MODERADO":
-
-        st.warning(
-            "Risco moderado de downtime."
-        )
-
-    else:
-
-        st.success(
-            "Baixo risco operacional."
-        )
-
-    # ==========================================
-    # EXPORTAR
-    # ==========================================
-
-    export_df = pd.DataFrame({
-
-        "Equipamento": [
-            equipment
-        ],
-
-        "Departamento": [
-            selected_master[
-                "DEPT_EQUIP_DEPT_NAME"
-            ]
-        ],
-
-        "Tipo_Trabalho": [
-            job_type
-        ],
-
-        "Ano": [
-            work_year
-        ],
-
-        "Mes": [
-            create_month
-        ],
-
-        "Prioridade": [
-            priority
-        ],
-
-        "Classe_Downtime": [
-            downtime_class
-        ],
-
-        "Custo_Previsto": [
-            round(predicted_cost, 2)
-        ]
-    })
-
-    st.download_button(
-        "📥 Exportar Simulação",
-        export_df.to_csv(
-            index=False
-        ),
-        file_name=f"simulacao_{equipment}.csv",
-        mime="text/csv"
+    st.header(
+        "📚 Cenários Guardados"
     )
+
+    scenarios_df = pd.DataFrame(
+        st.session_state.simulations
+    )
+
+    st.dataframe(
+        scenarios_df,
+        use_container_width=True,
+        hide_index=True
+    )
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+
+        st.download_button(
+            "📥 Exportar Todos os Cenários",
+            scenarios_df.to_csv(index=False),
+            file_name="cenarios_simulados.csv",
+            mime="text/csv"
+        )
+
+    with col2:
+
+        if st.button(
+            "🗑️ Limpar Cenários"
+        ):
+
+            st.session_state.simulations = []
+
+            st.rerun()
