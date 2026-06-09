@@ -38,7 +38,7 @@ de necessitarem de reparação nos próximos 30 dias.
 # KPIs GERAIS
 # =====================================================
 
-st.header("📌 Indicadores de Risco")
+st.header("📌 Indicadores de Risco de Reparação - Equipamentos")
 
 moderate = latest_equipment[
     latest_equipment["PRED_REPAIR_30D_PCT"] >= 50
@@ -143,7 +143,7 @@ display_risk["Custo Médio"] = (
 
 display_risk["Downtime Médio"] = (
     display_risk["Downtime Médio"]
-    .apply(lambda x: f"{x:,.2f} h")
+    .apply(lambda x: f"{x/24:,.0f} dias")
 )
 
 st.dataframe(
@@ -185,38 +185,31 @@ st.subheader(
     f"Equipamento {selected_equipment}"
 )
 
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4, col5, = st.columns(5)
 
 col1.metric(
-    "Probabilidade Reparação",
-    f"{record['PRED_REPAIR_30D_PCT']:.2f}%"
+    "Prob. Reparação a 30 Dias",
+    f"{record['PRED_REPAIR_30D_PCT']:.0f}%"
 )
 
 col2.metric(
-    "Failure Frequency",
-    f"{record['FAILURE_FREQUENCY']:.2f}"
-)
-
-col3.metric(
     "Intervenções Totais",
     f"{int(record['TOTAL_INTERVENTIONS']):,}"
 )
 
-col4, col5, col6 = st.columns(3)
-
-col4.metric(
+col3.metric(
     "Reparações Últimos 12M",
     f"{int(record['REPAIRS_LAST_12M'])}"
 )
 
-col5.metric(
-    "PM Últimos 12M",
+col4.metric(
+    "Manutenções Últimos 12M",
     f"{int(record['PM_LAST_12M'])}"
 )
 
-col6.metric(
+col5.metric(
     "Downtime Médio",
-    f"{record['AVG_DOWNTIME_EQUIP']:.2f} h"
+    f"{record['AVG_DOWNTIME_EQUIP']/24:.0f} dias"
 )
 
 # =====================================================
@@ -228,25 +221,25 @@ risk = record["PRED_REPAIR_30D_PCT"]
 if risk >= 90:
 
     st.error(
-        f"🚨 Equipamento Crítico ({risk:.2f}%)"
+        f"🚨 Equipamento Crítico ({risk:.0f}%)"
     )
 
 elif risk >= 80:
 
     st.warning(
-        f"⚠️ Equipamento de Alto Risco ({risk:.2f}%)"
+        f"⚠️ Equipamento de Alto Risco ({risk:.0f}%)"
     )
 
 elif risk >= 50:
 
     st.info(
-        f"🔍 Equipamento a Monitorizar ({risk:.2f}%)"
+        f"🔍 Equipamento a Monitorizar ({risk:.0f}%)"
     )
 
 else:
 
     st.success(
-        f"✅ Risco Reduzido ({risk:.2f}%)"
+        f"✅ Risco Reduzido ({risk:.0f}%)"
     )
 
 # =====================================================
@@ -287,12 +280,12 @@ critical_display.columns = [
 
 critical_display["Custo Histórico"] = (
     critical_display["Custo Histórico"]
-    .apply(lambda x: f"${x:,.2f}")
+    .apply(lambda x: f"${x:,.0f}")
 )
 
 critical_display["Downtime Médio"] = (
     critical_display["Downtime Médio"]
-    .apply(lambda x: f"{x:,.2f} h")
+    .apply(lambda x: f"{x/24:,.0f} Dias")
 )
 
 st.dataframe(
