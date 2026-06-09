@@ -1,8 +1,10 @@
 import streamlit as st
 import pandas as pd
 
-from loaders import load_data, load_models
+from loaders import load_processed_data, load_master_data, load_models
 
+master_df = load_master_data()
+df_processed = load_processed_data()
 
 st.set_page_config(
     layout="wide"
@@ -10,8 +12,6 @@ st.set_page_config(
 # =====================================================
 # LOAD
 # =====================================================
-
-master_df, df_processed = load_data()
 
 (
     downtime_model,

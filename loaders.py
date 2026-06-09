@@ -3,17 +3,13 @@ import pandas as pd
 import joblib
 
 @st.cache_data
-def load_data():
+def load_master_data():
+    return pd.read_pickle("master_df.pkl")
 
-    master_df = pd.read_pickle(
-        "master_df.pkl"
-    )
 
-    df_processed = pd.read_pickle(
-        "df_processed.pkl"
-    )
-
-    return master_df, df_processed
+@st.cache_data
+def load_processed_data():
+    return pd.read_pickle("df_processed.pkl")
 
 
 @st.cache_resource

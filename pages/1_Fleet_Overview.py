@@ -1,9 +1,9 @@
 import streamlit as st
 import pandas as pd
 
-from loaders import load_data
+from loaders import load_master_data
 
-master_df, df_processed = load_data()
+master_df = load_master_data()
 
 # =====================================================
 # TÍTULO
