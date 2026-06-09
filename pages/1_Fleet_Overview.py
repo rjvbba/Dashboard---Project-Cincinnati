@@ -60,24 +60,24 @@ col2.metric(
 
 col3.metric(
     "Custo Total",
-    f"${master_df['TOTAL_COST'].sum():,.2f}"
+    f"${master_df['TOTAL_COST'].sum():,.0f}"
 )
 
 col4, col5, col6 = st.columns(3)
 
 col4.metric(
     "Custo Médio",
-    f"${master_df['TOTAL_COST'].mean():,.2f}"
+    f"${master_df['TOTAL_COST'].mean():,.0f}"
 )
 
 col5.metric(
     "Downtime Médio",
-    f"{master_df['DOWNTIME_HRS_USER'].mean():,.2f} h"
+    f"{master_df['DOWNTIME_HRS_USER'].mean()/24:,.0f} Dias"
 )
 
 col6.metric(
-    "Risco Médio",
-    f"{latest_equipment['PRED_REPAIR_30D_PCT'].mean():,.2f}%"
+    "Risco Médio Reparação a 30D",
+    f"{latest_equipment['PRED_REPAIR_30D_PCT'].mean():,.0f}%"
 )
 
 # =====================================================
@@ -115,12 +115,12 @@ display_repairs.columns = [
 
 display_repairs["Custo Total"] = (
     display_repairs["Custo Total"]
-    .apply(lambda x: f"${x:,.2f}")
+    .apply(lambda x: f"${x:,.0f}")
 )
 
 display_repairs["Downtime Médio"] = (
     display_repairs["Downtime Médio"]
-    .apply(lambda x: f"{x:,.2f} h")
+    .apply(lambda x: f"{x/24:,.0f} DIas")
 )
 
 st.dataframe(
@@ -160,7 +160,7 @@ display_cost.columns = [
 
 display_cost["Custo Total"] = (
     display_cost["Custo Total"]
-    .apply(lambda x: f"${x:,.2f}")
+    .apply(lambda x: f"${x:,.0f}")
 )
 
 st.dataframe(
@@ -200,7 +200,7 @@ display_downtime.columns = [
 
 display_downtime["Downtime Médio"] = (
     display_downtime["Downtime Médio"]
-    .apply(lambda x: f"{x:,.2f} h")
+    .apply(lambda x: f"{x/24:,.2f} Dias")
 )
 
 st.dataframe(
@@ -268,24 +268,24 @@ col2.metric(
 
 col3.metric(
     "Risco 30 Dias",
-    f"{latest_record['PRED_REPAIR_30D_PCT']:.2f}%"
+    f"{latest_record['PRED_REPAIR_30D_PCT']:.0f}%"
 )
 
 col4, col5, col6 = st.columns(3)
 
 col4.metric(
     "Custo Total",
-    f"${latest_record['TOTAL_COST_EQUIP']:,.2f}"
+    f"${latest_record['TOTAL_COST_EQUIP']:,.0f}"
 )
 
 col5.metric(
     "Custo Médio",
-    f"${latest_record['AVG_COST_EQUIP']:,.2f}"
+    f"${latest_record['AVG_COST_EQUIP']:,.0f}"
 )
 
 col6.metric(
     "Downtime Médio",
-    f"{latest_record['AVG_DOWNTIME_EQUIP']:,.2f} h"
+    f"{latest_record['AVG_DOWNTIME_EQUIP']/24:,.0f} Dias"
 )
 
 # =====================================================
@@ -324,12 +324,12 @@ col1.metric(
 
 col2.metric(
     "Custo no Período",
-    f"${equipment_df_filtered['TOTAL_COST'].sum():,.2f}"
+    f"${equipment_df_filtered['TOTAL_COST'].sum():,.0f}"
 )
 
 col3.metric(
     "Downtime no Período",
-    f"{equipment_df_filtered['DOWNTIME_HRS_USER'].sum():,.2f} h"
+    f"{equipment_df_filtered['DOWNTIME_HRS_USER'].sum()/24:,.0f} Dias"
 )
 # =====================================================
 # HISTÓRICO
@@ -374,11 +374,11 @@ history["Data"] = pd.to_datetime(
 ).dt.strftime("%d/%m/%Y")
 
 history["Custo"] = history["Custo"].apply(
-    lambda x: f"${x:,.2f}"
+    lambda x: f"${x:,.0f}"
 )
 
 history["Downtime"] = history["Downtime"].apply(
-    lambda x: f"{x:,.2f} h"
+    lambda x: f"{x/24:,.0f} Dias"
 )
 
 st.dataframe(
@@ -387,4 +387,18 @@ st.dataframe(
     hide_index=True
 )
 
+# =====================================================
+# EXPORTAR HISTÓRICO
+# =====================================================
 
+export_history = history.copy()
+
+st.download_button(
+    "📥 Exportar Histórico do Equipamento",
+    export_history.to_csv(index=False),
+    file_name=(
+        f"historico_{equipment}_"
+        f"{ano_selecionado}.csv"
+    ),
+    mime="text/csv"
+)
