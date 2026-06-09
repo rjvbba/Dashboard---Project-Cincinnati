@@ -329,7 +329,7 @@ if run_simulation:
 
     st.dataframe(
         comparison,
-        use_container_width=True,
+        width="stretch",
         hide_index=True
     )
 
@@ -401,7 +401,7 @@ if st.session_state.last_simulation is not None:
 
     st.dataframe(
         last_df,
-        use_container_width=True,
+        width="stretch",
         hide_index=True
     )
 
@@ -449,7 +449,7 @@ if len(st.session_state.simulations) > 0:
 
     st.dataframe(
         scenarios_df,
-        use_container_width=True,
+        width="stretch",
         hide_index=True
     )
 

@@ -148,7 +148,7 @@ display_risk["Downtime Médio"] = (
 
 st.dataframe(
     display_risk,
-    use_container_width=True,
+    width="stretch",
     hide_index=True
 )
 
@@ -290,7 +290,7 @@ critical_display["Downtime Médio"] = (
 
 st.dataframe(
     critical_display,
-    use_container_width=True,
+    width="stretch",
     hide_index=True
 )
 
