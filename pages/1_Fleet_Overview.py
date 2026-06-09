@@ -125,7 +125,7 @@ display_repairs["Downtime Médio"] = (
 
 st.dataframe(
     display_repairs,
-    use_container_width=True,
+    width="stretch",
     hide_index=True
 )
 
@@ -165,7 +165,7 @@ display_cost["Custo Total"] = (
 
 st.dataframe(
     display_cost,
-    use_container_width=True,
+    width="stretch",
     hide_index=True
 )
 
@@ -205,7 +205,7 @@ display_downtime["Downtime Médio"] = (
 
 st.dataframe(
     display_downtime,
-    use_container_width=True,
+    width="stretch",
     hide_index=True
 )
 
@@ -383,7 +383,7 @@ history["Downtime"] = history["Downtime"].apply(
 
 st.dataframe(
     history,
-    use_container_width=True,
+    width="stretch",
     hide_index=True
 )
 
