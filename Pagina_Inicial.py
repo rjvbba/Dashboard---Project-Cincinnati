@@ -22,27 +22,25 @@ st.set_page_config(
 # GOOGLE DRIVE FILE IDS
 # =====================================================
 
-MASTER_FILE_ID = "1_6rqblhCDduCD7zeRPV4_wS7ggl6MaUa"
+MASTER_FILE_ID = "1Xvl1QRJ5qznJQiRYaWkFTI-kDqBd1n0f"
 
-DF_PROCESSED_FILE_ID = "1EgYt6ZGIDtPwAi1w5-9UsKQh2vMFIpeA"
+DF_PROCESSED_FILE_ID = "1twRI0-1IowIcGpvlMPjaIz-3uDQ5nNPa"
 
 # =====================================================
 # DOWNLOAD DATASETS (APENAS UMA VEZ)
 # =====================================================
 
-if not os.path.exists("master_df.pkl"):
-
+if not os.path.exists("master_df.parquet"):
     gdown.download(
         f"https://drive.google.com/uc?id={MASTER_FILE_ID}",
-        "master_df.pkl",
+        "master_df.parquet",
         quiet=False
     )
 
-if not os.path.exists("df_processed.pkl"):
-
+if not os.path.exists("df_processed.parquet"):
     gdown.download(
         f"https://drive.google.com/uc?id={DF_PROCESSED_FILE_ID}",
-        "df_processed.pkl",
+        "df_processed.parquet",
         quiet=False
     )
 
@@ -50,13 +48,8 @@ if not os.path.exists("df_processed.pkl"):
 # DATASETS
 # =====================================================
 
-master_df = pd.read_pickle(
-    "master_df.pkl"
-)
-
-df_processed = pd.read_pickle(
-    "df_processed.pkl"
-)
+master_df = pd.read_parquet("master_df.parquet")
+df_processed = pd.read_parquet("df_processed.parquet")
 
 # =====================================================
 # MODELOS
@@ -86,22 +79,25 @@ cost_features = joblib.load(
 # =====================================================
 # CACHE DATASETS
 # =====================================================
+
 @st.cache_data
 def load_data():
 
-    master_df = pd.read_pickle(
-        "master_df.pkl"
+    master_df = pd.read_parquet(
+        "master_df.parquet"
     )
 
-    df_processed = pd.read_pickle(
-        "df_processed.pkl"
+    df_processed = pd.read_parquet(
+        "df_processed.parquet"
     )
 
     return master_df, df_processed
 
+
 # =====================================================
 # CACHE MODELOS
 # =====================================================
+
 @st.cache_resource
 def load_models():
 
@@ -128,8 +124,9 @@ def load_models():
         cost_features
     )
 
+
 # =====================================================
-# lOADING
+# LOADING
 # =====================================================
 
 master_df, df_processed = load_data()

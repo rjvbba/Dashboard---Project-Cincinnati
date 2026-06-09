@@ -2,15 +2,24 @@ import streamlit as st
 import pandas as pd
 import joblib
 
+
+# =====================================================
+# DATASETS
+# =====================================================
+
 @st.cache_data
 def load_master_data():
-    return pd.read_pickle("master_df.pkl")
+    return pd.read_parquet("master_df.parquet")
 
 
 @st.cache_data
 def load_processed_data():
-    return pd.read_pickle("df_processed.pkl")
+    return pd.read_parquet("df_processed.parquet")
 
+
+# =====================================================
+# MODELS
+# =====================================================
 
 @st.cache_resource
 def load_models():
