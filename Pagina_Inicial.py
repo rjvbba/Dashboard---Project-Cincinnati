@@ -24,7 +24,7 @@ st.set_page_config(
 
 MASTER_FILE_ID = "1Xvl1QRJ5qznJQiRYaWkFTI-kDqBd1n0f"
 
-DF_PROCESSED_FILE_ID = "1twRI0-1IowIcGpvlMPjaIz-3uDQ5nNPa"
+DF_PROCESSED_FILE_ID = "175BdY7k_UpuMEGPE8m9Uh2WpiJUjomnp"
 
 # =====================================================
 # DOWNLOAD DATASETS (APENAS UMA VEZ)
@@ -186,3 +186,12 @@ Nesta página poderá:
 - Introduzir parâmetros operacionais
 - Estimar downtime esperado
 - Estimar custo previsto de reparação""")
+
+
+st.write(
+    f"master_df: {master_df.memory_usage(deep=True).sum()/1024**2:.2f} MB"
+)
+
+st.write(
+    f"df_processed: {df_processed.memory_usage(deep=True).sum()/1024**2:.2f} MB"
+)
