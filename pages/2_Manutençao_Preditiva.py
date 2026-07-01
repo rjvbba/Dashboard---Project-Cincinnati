@@ -25,7 +25,7 @@ latest_equipment = (
 # TÍTULO
 # =====================================================
 
-st.title("🔮 Manutenção Preditiva")
+st.title("🔧 Manutenção Preditiva")
 
 st.markdown("""
 Esta página apresenta os resultados do modelo preditivo de manutenção.
@@ -38,7 +38,7 @@ de necessitarem de reparação nos próximos 30 dias.
 # KPIs GERAIS
 # =====================================================
 
-st.header("📌 Indicadores de Risco de Reparação - Equipamentos")
+st.header("Indicadores de Risco de Reparação - Equipamentos")
 
 moderate = latest_equipment[
     latest_equipment["PRED_REPAIR_30D_PCT"] >= 50
@@ -74,7 +74,7 @@ col3.metric(
 # FILTRO DEPARTAMENTO
 # =====================================================
 
-st.header("🏢 Filtrar por Departamento")
+st.header("Filtrar por Departamento")
 
 departments = sorted(
     latest_equipment[
@@ -105,7 +105,7 @@ else:
 # TOP 20 RISCO
 # =====================================================
 
-st.header("🚨 Top 20 Equipamentos com Maior Risco")
+st.header("Top 20 Equipamentos com Maior Risco")
 
 top_risk = (
     filtered_df

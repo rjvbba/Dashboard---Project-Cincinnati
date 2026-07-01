@@ -58,7 +58,7 @@ latest_processed = (
 # TÍTULO
 # =====================================================
 
-st.title("🧮 Simulador de Impacto")
+st.title("🕹️ Simulador de Impacto")
 
 st.markdown("""
 Esta ferramenta permite simular o impacto esperado de uma intervenção.
@@ -274,7 +274,7 @@ if run_simulation:
     # RESULTADOS
     # ==========================================
 
-    st.header("🔮 Resultados da Simulação")
+    st.header("🕹️ Resultados da Simulação")
 
     col1, col2 = st.columns(2)
 
@@ -297,7 +297,7 @@ if run_simulation:
     # ==========================================
 
     st.subheader(
-        "📊 Comparação com Situação Atual"
+        "Comparação com Situação Atual"
     )
 
     comparison = pd.DataFrame({

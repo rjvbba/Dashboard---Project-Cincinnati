@@ -146,45 +146,50 @@ st.title("🚛 Dashboard de Manutenção Preditiva da Frota de Cincinnati")
 st.markdown("""
 Bem-vindo à plataforma de análise e manutenção preditiva da frota municipal de Cincinnati.
 
-Este dashboard utiliza modelos de Machine Learning para apoiar a tomada de decisão na gestão de equipamentos, permitindo identificar riscos de avaria, estimar custos de reparação e prever tempos de indisponibilidade.
+Esta aplicação utiliza modelos de Machine Learning para apoiar a gestão da manutenção dos equipamentos da frota, permitindo identificar ativos de maior risco, analisar indicadores operacionais e simular cenários de intervenção.
 
 ---
 
 ## 📊 Fleet Overview
 
-Visão global da frota.
+Apresenta uma visão global da frota através de indicadores de desempenho, custos, downtime e distribuição dos equipamentos.
 
 Nesta página poderá consultar:
 
-- Indicadores-chave da frota
-- Equipamentos com maior risco de intervenção
-- Estatísticas de custo e downtime
-- Resumo operacional da frota
+- Indicadores gerais da frota
+- Distribuição dos equipamentos por departamento
+- Equipamentos com mais intervenções
+- Equipamentos com maior custo de manutenção
+- Equipamentos com maior downtime médio
+- Histórico operacional de cada equipamento
 
 ---
 
 ## 🔧 Manutenção Preditiva
 
-Análise individual de equipamentos.
+Permite identificar equipamentos com maior probabilidade de necessitarem de reparação nos próximos 30 dias, explorar cada ativo e consultar os principais indicadores de risco.
 
 Nesta página poderá:
 
-- Pesquisar equipamentos específicos
-- Consultar histórico resumido
-- Visualizar probabilidade de reparação nos próximos 30 dias
-- Analisar métricas operacionais relevantes
+- Consultar a probabilidade de reparação nos próximos 30 dias
+- Identificar equipamentos de alto risco e críticos
+- Filtrar os resultados por departamento
+- Explorar indicadores individuais de cada equipamento
+- Exportar a lista de equipamentos prioritários para manutenção
 
 ---
 
-## 📈 Simulador de Impacto
+## 🕹️ Simulador de Impacto
 
-Ferramenta de apoio à decisão.
+Permite simular diferentes cenários de manutenção e estimar o custo esperado e a classe de downtime prevista para uma nova intervenção.
 
 Nesta página poderá:
 
-- Simular novas intervenções
-- Introduzir parâmetros operacionais
-- Estimar downtime esperado
-- Estimar custo previsto de reparação""")
+- Configurar diferentes cenários de intervenção
+- Alterar os parâmetros da próxima ordem de trabalho
+- Estimar o custo previsto da intervenção
+- Prever a classe de downtime esperada
+- Comparar os resultados da simulação com a situação atual
+- Guardar e exportar os cenários simulados""")
 
 

@@ -44,7 +44,7 @@ latest_equipment = (
 # KPIS
 # =====================================================
 
-st.header("📌 Indicadores Gerais")
+st.header("Indicadores Gerais")
 
 col1, col2, col3 = st.columns(3)
 
@@ -84,7 +84,7 @@ col6.metric(
 # TOP INTERVENÇÕES
 # =====================================================
 
-st.header("🔧 Top 10 Equipamentos com Mais Intervenções")
+st.header("Top 10 Equipamentos com Mais Intervenções")
 
 top_repairs = (
     latest_equipment
@@ -133,7 +133,7 @@ st.dataframe(
 # TOP CUSTOS
 # =====================================================
 
-st.header("💰 Top 10 Equipamentos com Maior Custo")
+st.header("Top 10 Equipamentos com Maior Custo")
 
 top_cost = (
     latest_equipment
@@ -173,7 +173,7 @@ st.dataframe(
 # TOP DOWNTIME
 # =====================================================
 
-st.header("⏱️ Top 10 Equipamentos com Maior Downtime")
+st.header("Top 10 Equipamentos com Maior Downtime")
 
 top_downtime = (
     latest_equipment
@@ -213,7 +213,7 @@ st.dataframe(
 # DEPARTAMENTOS
 # =====================================================
 
-st.header("🏢 Equipamentos por Departamento")
+st.header("Equipamentos por Departamento")
 
 dept_summary = (
     latest_equipment
@@ -292,7 +292,7 @@ col6.metric(
 # FILTRO ANO
 # =====================================================
 
-st.subheader("📅 Filtro Temporal")
+st.subheader("Filtro Temporal")
 
 anos_disponiveis = sorted(
     equipment_df["WORK_ORDER_YR"]
