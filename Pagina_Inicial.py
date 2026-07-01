@@ -188,10 +188,3 @@ Nesta página poderá:
 - Estimar custo previsto de reparação""")
 
 
-st.write(
-    f"master_df: {master_df.memory_usage(deep=True).sum()/1024**2:.2f} MB"
-)
-
-st.write(
-    f"df_processed: {df_processed.memory_usage(deep=True).sum()/1024**2:.2f} MB"
-)
